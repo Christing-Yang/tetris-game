@@ -37,8 +37,7 @@
             border: 2px solid #4cc9f0;
             background: #16213e;
             width: 100%;
-            height: auto;
-            aspect-ratio: 1/2;
+            height: 600px;
             display: block;
             margin: 0 auto;
         }
@@ -148,33 +147,16 @@
             width: 80%;
             max-width: 300px;
         }
-        
-        /* iPhone specific optimizations */
-        @media (max-width: 414px) {
-            body {
-                padding: 5px;
-            }
-            .control-btn {
-                padding: 12px 0;
-                font-size: 16px;
-            }
-        }
-        
-        /* Hide keyboard on iOS */
-        input[type="button"] {
-            -webkit-appearance: none;
-            appearance: none;
-        }
     </style>
 </head>
 <body>
     <h1>🦞 俄罗斯方块 - iPhone版</h1>
     <div class="game-container">
-        <canvas id="game-board"></canvas>
+        <canvas id="game-board" width="300" height="600"></canvas>
         <div class="side-panel">
             <div>
                 <h3 style="text-align: center; margin-bottom: 10px;">下一个方块</h3>
-                <canvas id="next-piece"></canvas>
+                <canvas id="next-piece" width="100" height="100"></canvas>
             </div>
             <div class="stats">
                 <h3>游戏状态</h3>
@@ -205,6 +187,7 @@
         // 游戏常量
         const COLS = 10;
         const ROWS = 20;
+        const BLOCK_SIZE = 30;
         const COLORS = [
             null,
             '#FF0D72', // I
@@ -241,7 +224,11 @@
         let lastTime = 0;
         let currentPiece = null;
         let nextPiece = null;
-        let BLOCK_SIZE;
+
+        // 确保 DOM 完全加载后再初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+        });
 
         // 初始化
         function init() {
@@ -249,10 +236,6 @@
             ctx = canvas.getContext('2d');
             nextCanvas = document.getElementById('next-piece');
             nextCtx = nextCanvas.getContext('2d');
-            
-            // 设置画布大小（适配iPhone）
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
             
             createBoard();
             resetGame();
@@ -263,27 +246,27 @@
             document.getElementById('restart-btn').addEventListener('click', resetGame);
             
             // 移动端按钮控制
-            document.getElementById('left-btn').addEventListener('touchstart', () => movePiece(-1, 0));
-            document.getElementById('right-btn').addEventListener('touchstart', () => movePiece(1, 0));
-            document.getElementById('rotate-btn').addEventListener('touchstart', rotatePiece);
-            document.getElementById('drop-btn').addEventListener('touchstart', dropPiece);
+            document.getElementById('left-btn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                movePiece(-1, 0);
+            });
+            document.getElementById('right-btn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                movePiece(1, 0);
+            });
+            document.getElementById('rotate-btn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                rotatePiece();
+            });
+            document.getElementById('drop-btn').addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                dropPiece();
+            });
             
             // 防止长按菜单
             document.querySelectorAll('.control-btn').forEach(btn => {
                 btn.addEventListener('contextmenu', e => e.preventDefault());
             });
-        }
-
-        function resizeCanvas() {
-            const containerWidth = canvas.parentElement.clientWidth;
-            BLOCK_SIZE = Math.floor(containerWidth / COLS);
-            canvas.width = COLS * BLOCK_SIZE;
-            canvas.height = ROWS * BLOCK_SIZE;
-            
-            // 调整预览画布
-            const previewSize = Math.min(100, containerWidth * 0.25);
-            nextCanvas.width = previewSize;
-            nextCanvas.height = previewSize;
         }
 
         function createBoard() {
@@ -383,19 +366,18 @@
             nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
             
             if (nextPiece) {
-                const blockSize = nextCanvas.width / 4; // 预览区域最大4格
-                const offsetX = (nextCanvas.width - nextPiece.shape[0].length * blockSize) / 2;
-                const offsetY = (nextCanvas.height - nextPiece.shape.length * blockSize) / 2;
+                const offsetX = (nextCanvas.width - nextPiece.shape[0].length * BLOCK_SIZE) / 2;
+                const offsetY = (nextCanvas.height - nextPiece.shape.length * BLOCK_SIZE) / 2;
                 
                 nextPiece.shape.forEach((row, y) => {
                     row.forEach((value, x) => {
                         if (value !== 0) {
                             nextCtx.fillStyle = COLORS[nextPiece.color];
-                            nextCtx.fillRect(offsetX + x * blockSize, offsetY + y * blockSize, blockSize, blockSize);
+                            nextCtx.fillRect(offsetX + x * BLOCK_SIZE, offsetY + y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
                             
                             nextCtx.strokeStyle = '#000';
                             nextCtx.lineWidth = 1;
-                            nextCtx.strokeRect(offsetX + x * blockSize, offsetY + y * blockSize, blockSize, blockSize);
+                            nextCtx.strokeRect(offsetX + x * BLOCK_SIZE, offsetY + y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
                         }
                     });
                 });
@@ -452,13 +434,6 @@
         function dropPiece() {
             if (gameOver || paused) return;
             movePiece(0, 1);
-        }
-
-        function hardDrop() {
-            if (gameOver || paused) return;
-            while (movePiece(0, 1)) {
-                // 持续下落直到不能再下落
-            }
         }
 
         function isCollision() {
@@ -542,9 +517,6 @@
             document.getElementById('level').textContent = level;
             document.getElementById('lines').textContent = lines;
         }
-
-        // 启动游戏
-        window.onload = init;
     </script>
 </body>
 </html>
