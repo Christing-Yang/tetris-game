@@ -14,7 +14,7 @@
         
         body {
             margin: 0;
-            padding: 10px;
+            padding: 5px;
             background: #1a1a2e;
             color: #fff;
             font-family: 'Arial', sans-serif;
@@ -23,21 +23,42 @@
             align-items: center;
             min-height: 100vh;
             overflow: hidden;
+            /* 确保内容不会超出视口 */
+            max-height: 100vh;
         }
         
-        .game-container {
+        .container {
             display: flex;
             flex-direction: column;
-            gap: 15px;
             width: 100%;
             max-width: 400px;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+        }
+        
+        h1 {
+            color: #4cc9f0;
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.7);
+            margin: 5px 0 10px 0;
+            text-align: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 10px;
+            overflow: hidden;
         }
         
         #game-board {
             border: 2px solid #4cc9f0;
             background: #16213e;
             width: 100%;
-            height: 600px;
+            flex: 3;
             display: block;
             margin: 0 auto;
         }
@@ -45,54 +66,72 @@
         .side-panel {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
             width: 100%;
+            flex: 2;
+            overflow: hidden;
+        }
+        
+        .next-piece-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
         }
         
         #next-piece {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             background: #16213e;
             border: 2px solid #4cc9f0;
-            margin: 0 auto;
         }
         
         .stats {
             background: #16213e;
-            padding: 12px;
+            padding: 8px;
             border: 2px solid #4cc9f0;
-            border-radius: 8px;
+            border-radius: 5px;
             text-align: center;
+            font-size: 14px;
+            flex-shrink: 0;
         }
         
         .controls {
             background: #16213e;
-            padding: 12px;
+            padding: 8px;
             border: 2px solid #4cc9f0;
-            border-radius: 8px;
+            border-radius: 5px;
             text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
         
         .mobile-controls {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             grid-template-rows: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 8px;
+            flex: 1;
+            margin-top: 8px;
         }
         
         .control-btn {
             background: #4361ee;
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 15px 0;
-            font-size: 18px;
+            border-radius: 6px;
+            padding: 10px 0;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             transition: background 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .control-btn:active {
@@ -105,28 +144,25 @@
         .rotate-btn { grid-column: 2; grid-row: 1; }
         .drop-btn { grid-column: 2; grid-row: 2; }
         
-        button {
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .action-btn {
             background: #4361ee;
             color: white;
             border: none;
-            padding: 10px 15px;
-            margin: 5px;
+            padding: 8px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
-            width: 100%;
+            font-size: 14px;
+            flex: 1;
         }
         
-        button:hover {
+        .action-btn:hover {
             background: #3a56d4;
-        }
-        
-        h1 {
-            color: #4cc9f0;
-            text-shadow: 0 0 10px rgba(76, 201, 240, 0.7);
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 24px;
         }
         
         .hidden {
@@ -139,41 +175,83 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.8);
-            padding: 25px;
+            padding: 20px;
             border: 3px solid #f72585;
-            border-radius: 10px;
+            border-radius: 8px;
             text-align: center;
             z-index: 10;
             width: 80%;
-            max-width: 300px;
+            max-width: 280px;
+            font-size: 16px;
+        }
+        
+        /* iPhone specific optimizations */
+        @media (max-width: 375px) {
+            .control-btn {
+                padding: 8px 0;
+                font-size: 14px;
+            }
+            h1 {
+                font-size: 18px;
+            }
+        }
+        
+        @media (max-height: 667px) {
+            body {
+                padding: 2px;
+            }
+            h1 {
+                margin: 2px 0 5px 0;
+                font-size: 16px;
+            }
+            .stats, .controls {
+                padding: 6px;
+            }
+            .control-btn {
+                padding: 6px 0;
+                font-size: 14px;
+            }
+            #next-piece {
+                width: 60px;
+                height: 60px;
+            }
+        }
+        
+        /* Hide keyboard on iOS */
+        input[type="button"] {
+            -webkit-appearance: none;
+            appearance: none;
         }
     </style>
 </head>
 <body>
-    <h1>🦞 俄罗斯方块 - iPhone版</h1>
-    <div class="game-container">
-        <canvas id="game-board" width="300" height="600"></canvas>
-        <div class="side-panel">
-            <div>
-                <h3 style="text-align: center; margin-bottom: 10px;">下一个方块</h3>
-                <canvas id="next-piece" width="100" height="100"></canvas>
-            </div>
-            <div class="stats">
-                <h3>游戏状态</h3>
-                <p>分数: <span id="score">0</span></p>
-                <p>等级: <span id="level">1</span></p>
-                <p>行数: <span id="lines">0</span></p>
-            </div>
-            <div class="controls">
-                <h3>触屏控制</h3>
-                <div class="mobile-controls">
-                    <button class="control-btn left-btn" id="left-btn">←</button>
-                    <button class="control-btn rotate-btn" id="rotate-btn">🔄</button>
-                    <button class="control-btn right-btn" id="right-btn">→</button>
-                    <button class="control-btn drop-btn" id="drop-btn">↓</button>
+    <div class="container">
+        <h1>🦞 俄罗斯方块 - iPhone版</h1>
+        <div class="game-area">
+            <canvas id="game-board"></canvas>
+            <div class="side-panel">
+                <div class="next-piece-container">
+                    <h3>下一个</h3>
+                    <canvas id="next-piece"></canvas>
                 </div>
-                <button id="start-btn">开始游戏</button>
-                <button id="pause-btn">暂停</button>
+                <div class="stats">
+                    <p>分数: <span id="score">0</span></p>
+                    <p>等级: <span id="level">1</span></p>
+                    <p>行数: <span id="lines">0</span></p>
+                </div>
+                <div class="controls">
+                    <h3>触屏控制</h3>
+                    <div class="mobile-controls">
+                        <button class="control-btn left-btn" id="left-btn">←</button>
+                        <button class="control-btn rotate-btn" id="rotate-btn">🔄</button>
+                        <button class="control-btn right-btn" id="right-btn">→</button>
+                        <button class="control-btn drop-btn" id="drop-btn">↓</button>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn" id="start-btn">开始</button>
+                        <button class="action-btn" id="pause-btn">暂停</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -187,7 +265,6 @@
         // 游戏常量
         const COLS = 10;
         const ROWS = 20;
-        const BLOCK_SIZE = 30;
         const COLORS = [
             null,
             '#FF0D72', // I
@@ -224,11 +301,7 @@
         let lastTime = 0;
         let currentPiece = null;
         let nextPiece = null;
-
-        // 确保 DOM 完全加载后再初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            init();
-        });
+        let BLOCK_SIZE;
 
         // 初始化
         function init() {
@@ -236,6 +309,10 @@
             ctx = canvas.getContext('2d');
             nextCanvas = document.getElementById('next-piece');
             nextCtx = nextCanvas.getContext('2d');
+            
+            // 设置画布大小（适配iPhone）
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
             
             createBoard();
             resetGame();
@@ -264,9 +341,28 @@
             });
             
             // 防止长按菜单
-            document.querySelectorAll('.control-btn').forEach(btn => {
+            document.querySelectorAll('.control-btn, .action-btn').forEach(btn => {
                 btn.addEventListener('contextmenu', e => e.preventDefault());
             });
+        }
+
+        function resizeCanvas() {
+            const gameBoard = document.getElementById('game-board');
+            const containerWidth = gameBoard.clientWidth;
+            const containerHeight = gameBoard.clientHeight;
+            
+            // 计算合适的方块大小
+            const blockSizeX = Math.floor(containerWidth / COLS);
+            const blockSizeY = Math.floor(containerHeight / ROWS);
+            BLOCK_SIZE = Math.min(blockSizeX, blockSizeY);
+            
+            canvas.width = COLS * BLOCK_SIZE;
+            canvas.height = ROWS * BLOCK_SIZE;
+            
+            // 调整预览画布
+            const previewSize = Math.min(80, containerWidth * 0.2);
+            nextCanvas.width = previewSize;
+            nextCanvas.height = previewSize;
         }
 
         function createBoard() {
@@ -366,18 +462,19 @@
             nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
             
             if (nextPiece) {
-                const offsetX = (nextCanvas.width - nextPiece.shape[0].length * BLOCK_SIZE) / 2;
-                const offsetY = (nextCanvas.height - nextPiece.shape.length * BLOCK_SIZE) / 2;
+                const blockSize = nextCanvas.width / 4;
+                const offsetX = (nextCanvas.width - nextPiece.shape[0].length * blockSize) / 2;
+                const offsetY = (nextCanvas.height - nextPiece.shape.length * blockSize) / 2;
                 
                 nextPiece.shape.forEach((row, y) => {
                     row.forEach((value, x) => {
                         if (value !== 0) {
                             nextCtx.fillStyle = COLORS[nextPiece.color];
-                            nextCtx.fillRect(offsetX + x * BLOCK_SIZE, offsetY + y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                            nextCtx.fillRect(offsetX + x * blockSize, offsetY + y * blockSize, blockSize, blockSize);
                             
                             nextCtx.strokeStyle = '#000';
                             nextCtx.lineWidth = 1;
-                            nextCtx.strokeRect(offsetX + x * BLOCK_SIZE, offsetY + y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                            nextCtx.strokeRect(offsetX + x * blockSize, offsetY + y * blockSize, blockSize, blockSize);
                         }
                     });
                 });
@@ -434,6 +531,13 @@
         function dropPiece() {
             if (gameOver || paused) return;
             movePiece(0, 1);
+        }
+
+        function hardDrop() {
+            if (gameOver || paused) return;
+            while (movePiece(0, 1)) {
+                // 持续下落直到不能再下落
+            }
         }
 
         function isCollision() {
@@ -517,6 +621,9 @@
             document.getElementById('level').textContent = level;
             document.getElementById('lines').textContent = lines;
         }
+
+        // 启动游戏
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
