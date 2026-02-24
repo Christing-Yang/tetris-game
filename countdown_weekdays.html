@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作日倒数计时器</title>
+    <style>
+        body {
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .countdown {
+            font-size: 4em;
+            font-weight: bold;
+            margin: 30px 0;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+        }
+        
+        .info {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+        
+        .highlight {
+            color: #ffeb3b;
+            font-weight: bold;
+        }
+        
+        .small {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .countdown {
+                font-size: 3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>工作日倒数计时器</h1>
+        <div class="countdown" id="countdown">计算中...</div>
+        <div class="info">
+            <p>目标日期: <span class="highlight">2031年2月24日</span></p>
+            <p>当前日期: <span id="currentDate"></span></p>
+            <p class="small">仅统计周一至周五的工作日</p>
+        </div>
+    </div>
+
+    <script>
+        // 目标日期：2031年2月24日
+        const targetDate = new Date('2031-02-24T00:00:00');
+        
+        function isWeekday(date) {
+            const day = date.getDay();
+            return day !== 0 && day !== 6; // 0是周日，6是周六
+        }
+        
+        function countWeekdaysBetween(start, end) {
+            let count = 0;
+            const current = new Date(start);
+            
+            // 确保start <= end
+            if (start > end) {
+                return 0;
+            }
+            
+            while (current <= end) {
+                if (isWeekday(current)) {
+                    count++;
+                }
+                current.setDate(current.getDate() + 1);
+            }
+            
+            return count;
+        }
+        
+        function updateCountdown() {
+            const now = new Date();
+            const currentDateElement = document.getElementById('currentDate');
+            const countdownElement = document.getElementById('countdown');
+            
+            // 格式化当前日期显示
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            currentDateElement.textContent = now.toLocaleDateString('zh-CN', options);
+            
+            // 计算剩余工作日
+            const remainingWeekdays = countWeekdaysBetween(now, targetDate);
+            
+            if (remainingWeekdays <= 0) {
+                countdownElement.textContent = '0';
+                countdownElement.style.color = '#ff6b6b';
+            } else {
+                countdownElement.textContent = remainingWeekdays.toLocaleString('zh-CN');
+                countdownElement.style.color = 'white';
+            }
+        }
+        
+        // 立即更新一次
+        updateCountdown();
+        
+        // 每分钟更新一次（因为日期变化）
+        setInterval(updateCountdown, 60000);
+        
+        // 页面加载时也更新
+        window.addEventListener('load', updateCountdown);
+    </script>
+</body>
+</html>
